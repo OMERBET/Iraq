@@ -7,14 +7,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;900&family=IBM+Plex+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --gold:#F0B429;--bg:#0D0D1A;--cyan:#00F5E9;--blue:#1557FF;
-  --purple:#8A2BE2;--green:#00FF9F;--red:#FF3D3D;--border:rgba(138,43,226,.12);
+  --gold:#F0B429;--bg:#03060F;--cyan:#00F5E9;--blue:#1557FF;
+  --green:#00FF9F;--red:#FF3D3D;--border:rgba(0,245,233,.12);
   --text:rgba(210,230,255,.85);
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Tajawal',sans-serif;overflow-x:hidden;min-height:100vh;}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(138,43,226,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(138,43,226,.035) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0;}
-body::after{content:'';position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse,rgba(138,43,226,.15) 0%,transparent 68%);pointer-events:none;z-index:0;animation:pulse 6s ease-in-out infinite alternate;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(21,87,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(21,87,255,.035) 1px,transparent 1px);background-size:52px 52px;pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;top:-300px;left:50%;transform:translateX(-50%);width:900px;height:500px;background:radial-gradient(ellipse,rgba(21,87,255,.13) 0%,transparent 68%);pointer-events:none;z-index:0;animation:pulse 6s ease-in-out infinite alternate;}
 @keyframes pulse{from{opacity:.5;transform:translateX(-50%) scale(1)}to{opacity:1;transform:translateX(-50%) scale(1.08)}}
 .pt{position:fixed;border-radius:50%;pointer-events:none;z-index:1;animation:rise linear infinite;}
 @keyframes rise{0%{transform:translateY(105vh);opacity:0}8%{opacity:.9}92%{opacity:.9}100%{transform:translateY(-8vh);opacity:0}}
@@ -24,16 +24,6 @@ body::after{content:'';position:fixed;top:-300px;left:50%;transform:translateX(-
 @keyframes shimmer{0%,100%{opacity:0}50%{opacity:1}}
 @keyframes popIn{from{transform:scale(.88);opacity:0}to{transform:scale(1);opacity:1}}
 @keyframes slideIn{from{transform:translateY(-10px);opacity:0}to{transform:translateY(0);opacity:1}}
-
-/* ══ LANGUAGE SWITCHER ══ */
-.lang-switch{position:fixed;top:15px;right:15px;z-index:101;display:flex;gap:6px;}
-.lang-btn{background:rgba(255,255,255,.08);border:1px solid rgba(138,43,226,.2);padding:6px 12px;border-radius:8px;color:rgba(200,220,255,.5);cursor:pointer;font-size:.75rem;font-weight:700;transition:.2s;font-family:'IBM Plex Mono',monospace;}
-.lang-btn:hover{background:rgba(255,255,255,.15);color:var(--cyan);}
-.lang-btn.active{background:var(--purple);border-color:var(--purple);color:#fff;box-shadow:0 0 15px rgba(138,43,226,.4);}
-
-/* ══ DOWNLOAD BUTTON ══ */
-.download-btn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--green),#00cc7f);border:none;color:#000;padding:10px 20px;border-radius:10px;cursor:pointer;font-size:.85rem;font-weight:900;margin:10px 5px;transition:.25s;box-shadow:0 4px 15px rgba(0,255,159,.25);}
-.download-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,255,159,.35);}
 
 /* ══ AUTH PAGE ══ */
 #auth-page{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg);}
@@ -234,13 +224,6 @@ footer{position:relative;z-index:10;border-top:1px solid rgba(21,87,255,.09);pad
 </style>
 </head>
 <body>
-
-<!-- Language Switcher -->
-<div class="lang-switch">
-  <button class="lang-btn active" id="lang-ar" onclick="setLang('ar')">AR</button>
-  <button class="lang-btn" id="lang-en" onclick="setLang('en')">EN</button>
-  <button class="lang-btn" id="lang-de" onclick="setLang('de')">DE</button>
-</div>
 
 <script>
 ['rgba(0,245,233,.18)','rgba(21,87,255,.18)','rgba(240,180,41,.18)'].forEach(c=>{
@@ -497,74 +480,7 @@ const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZ
 const ADMIN_EMAIL='jaafarabdulsalam49@gmail.com';
 const {createClient}=supabase;
 const sb=createClient(SB_URL,SB_KEY);
-let uEmail='',authMode='login',rInt=null,currentLang='ar';
-
-// ════════════════════════════════════════
-// DOWNLOAD CSV/EXCEL FUNCTIONS
-// ════════════════════════════════════════
-function downloadCSV(data, filename) {
-  const csvContent = "data:text/csv;charset=utf-8," + data;
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
-
-function exportSearchResults(question, answer) {
-  const timestamp = new Date().toISOString();
-  let csvData = "Question,Answer,Timestamp\n";
-  csvData += `"${question.replace(/"/g, '""')}","${answer.replace(/"/g, '""')}","${timestamp}"\n`;
-  downloadCSV(csvData, `quantum_search_${Date.now()}.csv`);
-}
-
-// ════════════════════════════════════════
-// MULTI-LANGUAGE SUPPORT
-// ════════════════════════════════════════
-const LANG_TRANSLATIONS = {
-  ar: {
-    searchPlaceholder: 'اسأل عن أي مفهوم كمي...',
-    searchBtn: '🔍 بحث',
-    downloadBtn: '📥 تحميل CSV',
-    logout: 'تسجيل الخروج'
-  },
-  en: {
-    searchPlaceholder: 'Ask about any quantum concept...',
-    searchBtn: '🔍 Search',
-    downloadBtn: '📥 Download CSV',
-    logout: 'Sign Out'
-  },
-  de: {
-    searchPlaceholder: 'Fragen Sie nach einem Quantenkonzept...',
-    searchBtn: '🔍 Suchen',
-    downloadBtn: '📥 CSV herunterladen',
-    logout: 'Abmelden'
-  }
-};
-
-function setLang(lang) {
-  currentLang = lang;
-  const t = LANG_TRANSLATIONS[lang];
-  
-  // Update HTML attributes
-  document.documentElement.lang = lang;
-  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
-  
-  // Update language buttons
-  ['ar','en','de'].forEach(l => {
-    const btn = document.getElementById('lang-'+l);
-    if(btn) btn.classList.toggle('active', l===lang);
-  });
-  
-  // Update UI elements
-  const qinp = document.getElementById('qinp');
-  if(qinp) qinp.placeholder = t.searchPlaceholder;
-  
-  const logoutBtn = document.getElementById('logout-btn');
-  if(logoutBtn) logoutBtn.textContent = t.logout;
-}
+let uEmail='',authMode='login',rInt=null;
 
 // ── field X helpers ──
 function fxClear(inp,btn){document.getElementById(btn).classList.toggle('on',document.getElementById(inp).value.length>0);}
@@ -691,23 +607,8 @@ async function signOut(){
   document.getElementById('afab').classList.remove('on');
   clrMsg();
 }
-// ════════════════════════════════════════
-// SESSION CHECK - OTP REQUIRED FOR SIGNUP ONLY
-// ════════════════════════════════════════
-(async()=>{
-  const{data}=await sb.auth.getSession();
-  if(data?.session?.user && data.session.user.email_confirmed_at){
-    showSuccess(data.session.user.email);
-    enterApp();
-  }
-})();
-
-sb.auth.onAuthStateChange((e,s)=>{
-  if(e==='SIGNED_IN' && s?.user && s.user.email_confirmed_at){
-    showSuccess(s.user.email);
-    enterApp();
-  }
-});
+(async()=>{const{data}=await sb.auth.getSession();if(data?.session?.user){showSuccess(data.session.user.email);enterApp();}})();
+sb.auth.onAuthStateChange((e,s)=>{if(e==='SIGNED_IN'&&s?.user){showSuccess(s.user.email);enterApp();}});
 
 // ══ SEARCH ══
 function ask(q){document.getElementById('qinp').value=q;toggleSX();doSearch();}
@@ -832,7 +733,6 @@ function renderResult(q,txt,sec){
     <div class="rhead">
       <span style="font-size:1.1rem;">⚛️</span>
       <span class="rttl">${q}</span>
-      <button class="download-btn" onclick="exportSearchResults(`${q}`,`${answer}`)">📥 تحميل CSV</button>
       <button class="r-x" onclick="closeResult()" title="إغلاق">✕</button>
     </div>
     <div class="rbody">
