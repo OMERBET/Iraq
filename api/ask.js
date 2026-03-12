@@ -1,3 +1,4 @@
+import { checkRate, sanitize, isMalicious, secureHeaders } from './middleware.js';
 // إعدادات محاكاة حاسوب IBM Quantum بـ 51 كيوبت (Osprey Architecture)
 const IBM_51Q = {
   avg_gate_error: 0.000842,
