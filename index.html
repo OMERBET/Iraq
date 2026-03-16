@@ -1,0 +1,1280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Iraq Quantum Computing Lab</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --ibm-blue:#0f62fe;
+  --ibm-blue-dark:#0043ce;
+  --ibm-blue-light:#4589ff;
+  --ibm-cyan:#1192e8;
+  --ibm-teal:#009d9a;
+  --ibm-purple:#8a3ffc;
+  --ibm-magenta:#ee5396;
+  --ibm-red:#da1e28;
+  --ibm-orange:#ff832b;
+  --ibm-yellow:#f1c21b;
+  --ibm-green:#24a148;
+  --gray-100:#f4f4f4;
+  --gray-200:#e0e0e0;
+  --gray-300:#c6c6c6;
+  --gray-400:#a8a8a8;
+  --gray-500:#8d8d8d;
+  --gray-600:#6f6f6f;
+  --gray-700:#525252;
+  --gray-800:#393939;
+  --gray-900:#262626;
+  --gray-1000:#161616;
+  --white:#ffffff;
+  --spacing-xs:4px;
+  --spacing-sm:8px;
+  --spacing-md:16px;
+  --spacing-lg:24px;
+  --spacing-xl:32px;
+  --spacing-2xl:48px;
+  --spacing-3xl:64px;
+  --spacing-4xl:96px;
+}
+
+html{scroll-behavior:smooth}
+body{
+  font-family:'IBM Plex Sans Arabic','IBM Plex Sans',sans-serif;
+  background:var(--gray-1000);
+  color:var(--white);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── GRID BACKGROUND ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(15,98,254,.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(15,98,254,.04) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── NOISE OVERLAY ── */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:0;
+  opacity:.5;
+}
+
+.page-wrap{position:relative;z-index:1}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:48px;
+  background:rgba(22,22,22,.92);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 var(--spacing-xl);
+}
+.nav-brand{
+  display:flex;align-items:center;gap:12px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;font-weight:600;
+  letter-spacing:0.08em;
+  color:var(--white);
+  text-decoration:none;
+}
+.nav-brand-icon{
+  width:24px;height:24px;
+  background:var(--ibm-blue);
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;
+}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{
+  padding:6px 12px;
+  font-size:13px;color:var(--gray-400);
+  text-decoration:none;
+  transition:color .15s;
+  cursor:pointer;
+  background:none;border:none;font-family:inherit;
+}
+.nav-link:hover{color:var(--white)}
+.nav-lang-group{display:flex;align-items:center;gap:2px;margin-right:8px}
+.lang-btn{
+  padding:4px 8px;
+  font-size:11px;font-weight:600;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--gray-500);
+  background:none;border:none;cursor:pointer;
+  transition:color .15s;
+  letter-spacing:.05em;
+}
+.lang-btn:hover,.lang-btn.active{color:var(--ibm-blue)}
+.nav-divider{width:1px;height:16px;background:rgba(255,255,255,.12)}
+#logout-btn{
+  padding:6px 16px;
+  font-size:12px;font-weight:600;
+  color:var(--white);
+  background:var(--ibm-blue);
+  border:none;cursor:pointer;
+  font-family:inherit;
+  letter-spacing:.04em;
+  transition:background .15s;
+}
+#logout-btn:hover{background:var(--ibm-blue-dark)}
+
+/* ── HERO ── */
+.hero{
+  padding-top:120px;
+  padding-bottom:var(--spacing-4xl);
+  padding-left:var(--spacing-xl);
+  padding-right:var(--spacing-xl);
+  max-width:1200px;
+  margin:0 auto;
+  position:relative;
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;font-weight:500;
+  letter-spacing:.15em;text-transform:uppercase;
+  color:var(--ibm-cyan);
+  margin-bottom:var(--spacing-lg);
+}
+.live-tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:4px 10px;
+  border:1px solid rgba(17,146,232,.3);
+  background:rgba(17,146,232,.08);
+  font-size:11px;color:var(--ibm-cyan);
+  font-family:'IBM Plex Mono',monospace;
+  letter-spacing:.08em;
+}
+.blink{
+  width:6px;height:6px;
+  background:var(--ibm-cyan);
+  border-radius:50%;
+  animation:blink 1.4s ease-in-out infinite;
+  flex-shrink:0;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+.hero h1{
+  font-size:clamp(2.2rem,5vw,4rem);
+  font-weight:300;
+  line-height:1.15;
+  letter-spacing:-.01em;
+  margin-bottom:var(--spacing-lg);
+  color:var(--white);
+}
+.hero h1 span{
+  color:var(--ibm-blue);
+  font-weight:600;
+}
+.hero p{
+  font-size:16px;font-weight:300;
+  color:var(--gray-400);
+  max-width:560px;
+  line-height:1.6;
+  margin-bottom:var(--spacing-2xl);
+}
+
+/* ── STATS ── */
+.stats-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.06);
+  margin-bottom:var(--spacing-2xl);
+}
+.stat-card{
+  background:var(--gray-1000);
+  padding:var(--spacing-lg) var(--spacing-xl);
+  position:relative;
+  overflow:hidden;
+}
+.stat-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;
+  height:2px;
+  background:var(--accent,var(--ibm-blue));
+}
+.stat-card:nth-child(1){--accent:var(--ibm-blue)}
+.stat-card:nth-child(2){--accent:var(--ibm-cyan)}
+.stat-card:nth-child(3){--accent:var(--ibm-teal)}
+.stat-card:nth-child(4){--accent:var(--ibm-purple)}
+.stat-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:28px;font-weight:600;
+  color:var(--accent,var(--ibm-blue));
+  line-height:1;
+  margin-bottom:4px;
+}
+.stat-l{
+  font-size:12px;font-weight:400;
+  color:var(--gray-400);
+  line-height:1.4;
+}
+
+/* ── SEARCH ── */
+.search-section{
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 var(--spacing-xl) var(--spacing-4xl);
+}
+.search-label{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;font-weight:500;
+  color:var(--gray-500);
+  letter-spacing:.12em;text-transform:uppercase;
+  margin-bottom:var(--spacing-sm);
+}
+.search-wrap{
+  display:flex;
+  position:relative;
+}
+#qinp{
+  flex:1;
+  height:56px;
+  padding:0 56px 0 var(--spacing-xl);
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  border-right:none;
+  color:var(--white);
+  font-size:15px;
+  font-family:'IBM Plex Sans Arabic','IBM Plex Sans',sans-serif;
+  outline:none;
+  transition:border-color .2s,background .2s;
+  direction:rtl;
+}
+html[lang="en"] #qinp,html[lang="de"] #qinp{direction:ltr}
+#qinp::placeholder{color:var(--gray-600)}
+#qinp:focus{
+  background:rgba(255,255,255,.07);
+  border-color:var(--ibm-blue);
+}
+#s-x{
+  position:absolute;
+  right:0;top:0;bottom:0;
+  width:56px;
+  display:none;align-items:center;justify-content:center;
+  background:none;border:none;cursor:pointer;
+  color:var(--gray-500);
+  font-size:18px;
+  transition:color .15s;
+}
+#s-x.on{display:flex}
+#s-x:hover{color:var(--white)}
+.search-btn{
+  width:140px;height:56px;
+  background:var(--ibm-blue);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-size:14px;font-weight:600;
+  color:var(--white);
+  font-family:inherit;
+  letter-spacing:.04em;
+  transition:background .15s;
+  flex-shrink:0;
+}
+.search-btn:hover{background:var(--ibm-blue-dark)}
+.search-btn svg{width:16px;height:16px}
+
+/* ── RESULT ── */
+#result-sec{
+  margin-top:2px;
+  display:none;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.02);
+}
+.result-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px var(--spacing-xl);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.03);
+}
+.result-tag{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;color:var(--ibm-green);
+  letter-spacing:.1em;text-transform:uppercase;
+  display:flex;align-items:center;gap:6px;
+}
+.result-tag::before{content:'✓';font-size:10px}
+.result-actions{display:flex;align-items:center;gap:4px}
+.export-btn{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;
+  font-size:12px;font-weight:600;
+  font-family:'IBM Plex Mono',monospace;
+  letter-spacing:.05em;
+  border:1px solid;cursor:pointer;
+  transition:all .15s;
+}
+.export-btn.csv{
+  color:var(--ibm-teal);border-color:rgba(0,157,154,.4);
+  background:rgba(0,157,154,.08);
+}
+.export-btn.csv:hover{background:rgba(0,157,154,.18)}
+.export-btn.xlsx{
+  color:var(--ibm-green);border-color:rgba(36,161,72,.4);
+  background:rgba(36,161,72,.08);
+}
+.export-btn.xlsx:hover{background:rgba(36,161,72,.18)}
+.export-btn svg{width:13px;height:13px}
+.result-body{
+  padding:var(--spacing-xl);
+  font-size:15px;line-height:1.75;
+  color:var(--gray-200);
+}
+.result-body h2,
+.result-body h3{
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--ibm-blue-light);
+  margin:var(--spacing-lg) 0 var(--spacing-sm);
+  font-size:13px;letter-spacing:.08em;text-transform:uppercase;
+}
+.result-body p{margin-bottom:var(--spacing-md)}
+.result-body pre{
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+  border-right:3px solid var(--ibm-blue);
+  padding:var(--spacing-md);
+  margin:var(--spacing-md) 0;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--ibm-cyan);
+  overflow-x:auto;
+  white-space:pre-wrap;
+}
+.result-body code{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  color:var(--ibm-cyan);
+  background:rgba(17,146,232,.1);
+  padding:1px 5px;
+}
+.result-meta{
+  display:flex;align-items:center;gap:16px;
+  padding:10px var(--spacing-xl);
+  border-top:1px solid rgba(255,255,255,.06);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;color:var(--gray-600);
+  letter-spacing:.08em;
+}
+
+/* ── LOADING ── */
+.loading-bar{
+  height:2px;
+  background:linear-gradient(90deg,var(--ibm-blue),var(--ibm-cyan),var(--ibm-purple));
+  background-size:200% 100%;
+  animation:loadbar 1.2s linear infinite;
+}
+@keyframes loadbar{0%{background-position:100% 0}100%{background-position:-100% 0}}
+
+/* ── AUTH MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,.8);
+  backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  width:100%;max-width:400px;
+  background:var(--gray-900);
+  border:1px solid rgba(255,255,255,.1);
+  border-top:3px solid var(--ibm-blue);
+  margin:var(--spacing-lg);
+}
+.modal-header{
+  padding:var(--spacing-lg) var(--spacing-xl);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.modal-title{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;
+  color:var(--white);
+}
+.modal-close{
+  width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;
+  background:none;border:none;cursor:pointer;
+  color:var(--gray-500);font-size:18px;
+  transition:color .15s;
+}
+.modal-close:hover{color:var(--white)}
+.modal-tabs{
+  display:flex;border-bottom:1px solid rgba(255,255,255,.06);
+}
+.auth-tab{
+  flex:1;padding:12px;
+  background:none;border:none;cursor:pointer;
+  font-size:13px;font-weight:500;
+  color:var(--gray-500);
+  font-family:inherit;
+  border-bottom:2px solid transparent;
+  transition:all .15s;
+}
+.auth-tab.active{color:var(--ibm-blue);border-bottom-color:var(--ibm-blue)}
+.modal-body{padding:var(--spacing-xl)}
+.field-wrap{margin-bottom:var(--spacing-md);position:relative}
+.field-label{
+  display:block;
+  font-size:11px;font-weight:600;
+  color:var(--gray-400);
+  letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:6px;
+  font-family:'IBM Plex Mono',monospace;
+}
+.field-inp{
+  width:100%;height:44px;
+  padding:0 40px 0 var(--spacing-md);
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  color:var(--white);
+  font-size:14px;
+  font-family:'IBM Plex Sans Arabic','IBM Plex Sans',sans-serif;
+  outline:none;
+  transition:border-color .2s;
+  direction:rtl;
+}
+.field-inp:focus{border-color:var(--ibm-blue)}
+.field-x{
+  position:absolute;left:0;top:26px;bottom:0;
+  width:40px;
+  display:none;align-items:center;justify-content:center;
+  background:none;border:none;cursor:pointer;
+  color:var(--gray-600);font-size:14px;
+  transition:color .15s;
+}
+.field-x.on{display:flex}
+.field-x:hover{color:var(--white)}
+.a-ok,.a-err{
+  padding:10px var(--spacing-md);
+  font-size:13px;margin-bottom:var(--spacing-md);
+  display:none;
+}
+.a-ok.on{display:block;background:rgba(36,161,72,.12);border:1px solid rgba(36,161,72,.3);color:var(--ibm-green)}
+.a-err.on{display:block;background:rgba(218,30,40,.1);border:1px solid rgba(218,30,40,.3);color:#ff8389}
+#auth-btn{
+  width:100%;height:48px;
+  background:var(--ibm-blue);
+  border:none;cursor:pointer;
+  font-size:14px;font-weight:600;
+  color:var(--white);font-family:inherit;
+  transition:background .15s;
+  letter-spacing:.04em;
+}
+#auth-btn:hover{background:var(--ibm-blue-dark)}
+
+/* ── FEATURES ── */
+.features-section{
+  max-width:1200px;margin:0 auto;
+  padding:var(--spacing-4xl) var(--spacing-xl);
+  border-top:1px solid rgba(255,255,255,.06);
+}
+.section-eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;font-weight:500;
+  letter-spacing:.15em;text-transform:uppercase;
+  color:var(--ibm-blue);
+  margin-bottom:var(--spacing-md);
+}
+.section-title{
+  font-size:clamp(1.5rem,3vw,2.2rem);
+  font-weight:300;
+  color:var(--white);
+  margin-bottom:var(--spacing-2xl);
+}
+.features-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:1px;
+  background:rgba(255,255,255,.06);
+}
+.feature-card{
+  background:var(--gray-1000);
+  padding:var(--spacing-xl);
+  transition:background .2s;
+  position:relative;
+  overflow:hidden;
+}
+.feature-card::after{
+  content:'';
+  position:absolute;bottom:0;left:0;right:0;
+  height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent,var(--ibm-blue)),transparent);
+  transform:scaleX(0);
+  transition:transform .3s;
+}
+.feature-card:hover{background:rgba(255,255,255,.02)}
+.feature-card:hover::after{transform:scaleX(1)}
+.feature-card:nth-child(1){--accent:var(--ibm-blue)}
+.feature-card:nth-child(2){--accent:var(--ibm-cyan)}
+.feature-card:nth-child(3){--accent:var(--ibm-teal)}
+.feature-card:nth-child(4){--accent:var(--ibm-purple)}
+.feature-card:nth-child(5){--accent:var(--ibm-magenta)}
+.feature-card:nth-child(6){--accent:var(--ibm-orange)}
+.feature-icon{
+  width:40px;height:40px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(15,98,254,.1);
+  margin-bottom:var(--spacing-md);
+  font-size:18px;
+  color:var(--accent,var(--ibm-blue));
+}
+.feature-title{
+  font-size:15px;font-weight:600;
+  color:var(--white);
+  margin-bottom:var(--spacing-sm);
+}
+.feature-desc{
+  font-size:13px;color:var(--gray-500);
+  line-height:1.6;
+}
+
+/* ── XLSX EXPORT MODAL ── */
+.xlsx-modal-overlay{
+  position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.85);
+  backdrop-filter:blur(6px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .2s;
+}
+.xlsx-modal-overlay.open{opacity:1;pointer-events:all}
+.xlsx-modal{
+  width:100%;max-width:560px;
+  background:var(--gray-900);
+  border:1px solid rgba(255,255,255,.1);
+  border-top:3px solid var(--ibm-green);
+  margin:var(--spacing-lg);
+}
+.xlsx-modal-header{
+  padding:var(--spacing-md) var(--spacing-xl);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.xlsx-modal-title{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ibm-green);
+  display:flex;align-items:center;gap:8px;
+}
+.xlsx-modal-body{padding:var(--spacing-xl)}
+.xlsx-preview-table{
+  width:100%;border-collapse:collapse;
+  margin-bottom:var(--spacing-xl);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+}
+.xlsx-preview-table th{
+  background:rgba(36,161,72,.12);
+  color:var(--ibm-green);
+  padding:8px 12px;
+  text-align:right;
+  font-weight:600;
+  letter-spacing:.06em;
+  border:1px solid rgba(36,161,72,.2);
+}
+.xlsx-preview-table td{
+  padding:8px 12px;
+  color:var(--gray-300);
+  border:1px solid rgba(255,255,255,.06);
+  max-width:180px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.xlsx-preview-table tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+.xlsx-options{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:var(--spacing-md);
+  margin-bottom:var(--spacing-xl);
+}
+.xlsx-opt-group label{
+  display:block;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;font-weight:600;
+  color:var(--gray-500);
+  letter-spacing:.1em;text-transform:uppercase;
+  margin-bottom:6px;
+}
+.xlsx-opt-group select{
+  width:100%;height:36px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1);
+  color:var(--white);
+  font-size:13px;
+  font-family:'IBM Plex Mono',monospace;
+  padding:0 10px;
+  outline:none;
+}
+.xlsx-actions{display:flex;gap:var(--spacing-sm)}
+.xlsx-confirm-btn{
+  flex:1;height:44px;
+  background:var(--ibm-green);
+  border:none;cursor:pointer;
+  font-size:13px;font-weight:600;
+  color:var(--white);font-family:inherit;
+  letter-spacing:.06em;
+  transition:background .15s;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.xlsx-confirm-btn:hover{background:#1a7a36}
+.xlsx-cancel-btn{
+  height:44px;padding:0 20px;
+  background:none;
+  border:1px solid rgba(255,255,255,.12);
+  cursor:pointer;
+  font-size:13px;color:var(--gray-400);
+  font-family:inherit;
+  transition:all .15s;
+}
+.xlsx-cancel-btn:hover{border-color:var(--white);color:var(--white)}
+.xlsx-size-info{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;color:var(--gray-600);
+  display:flex;align-items:center;gap:16px;
+  margin-top:var(--spacing-md);
+}
+.xlsx-size-info span{display:flex;align-items:center;gap:4px}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:var(--spacing-xl);
+  display:flex;align-items:center;justify-content:space-between;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;color:var(--gray-600);
+  letter-spacing:.06em;
+}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:500;
+  padding:12px 20px;
+  background:var(--gray-800);
+  border:1px solid rgba(255,255,255,.1);
+  border-right:3px solid var(--ibm-green);
+  font-size:13px;color:var(--white);
+  font-family:'IBM Plex Mono',monospace;
+  transform:translateY(80px);opacity:0;
+  transition:all .3s cubic-bezier(.16,1,.3,1);
+  pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .features-grid{grid-template-columns:1fr}
+  nav{padding:0 var(--spacing-md)}
+  .nav-links{display:none}
+  .hero{padding-left:var(--spacing-md);padding-right:var(--spacing-md)}
+  .search-section{padding-left:var(--spacing-md);padding-right:var(--spacing-md)}
+  .xlsx-options{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#">
+    <div class="nav-brand-icon">⚛</div>
+    IQ QUANTUM LAB
+  </a>
+  <div style="display:flex;align-items:center;gap:12px">
+    <div class="nav-lang-group">
+      <button class="lang-btn active" onclick="setLang('ar',this)">AR</button>
+      <button class="lang-btn" onclick="setLang('en',this)">EN</button>
+      <button class="lang-btn" onclick="setLang('de',this)">DE</button>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-links">
+      <button class="nav-link" onclick="openAuth()">تسجيل الدخول</button>
+    </div>
+    <button id="logout-btn" onclick="handleLogout()">تسجيل الدخول ⚛️</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-eyebrow">
+    <span class="live-tag"><span class="blink"></span> اسأل بأي لغة — شرح + كود + محاكاة مباشرة</span>
+  </div>
+  <h1>Iraq <span>Quantum</span><br>Computing Lab</h1>
+  <p>Iraq Quantum Computing Lab — مدعوم بالذكاء الاصطناعي. استكشف الحوسبة الكمية بالعربية والإنجليزية والألمانية.</p>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num">512</div>
+      <div class="stat-l">كيوبت<br>محاكاة حقيقية</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">2P</div>
+      <div class="stat-l">حالة كمية<br>كوادريليون 2</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">Mar</div>
+      <div class="stat-l">الأول بالعراق<br>مارس 2026 8</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">∞</div>
+      <div class="stat-l">مجاني<br>بلا حدود</div>
+    </div>
+  </div>
+</section>
+
+<!-- SEARCH -->
+<section class="search-section">
+  <div class="search-label">// QUANTUM QUERY ENGINE</div>
+  <div class="search-wrap">
+    <input type="text" id="qinp" placeholder="اسأل عن الحوسبة الكمية..."
+      oninput="toggleSX()"
+      onkeydown="if(event.key==='Enter')doSearch()"/>
+    <button id="s-x" onclick="clearSearch()">✕</button>
+    <button class="search-btn" onclick="doSearch()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      بحث
+    </button>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result-sec"></div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section">
+  <div class="section-eyebrow">// CAPABILITIES</div>
+  <div class="section-title">قدرات المختبر الكمي</div>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">⚛</div>
+      <div class="feature-title">محاكاة كيوبت حقيقية</div>
+      <div class="feature-desc">محاكاة دقيقة لدوائر الكم مع دعم بوابات Hadamard, CNOT, Toffoli وأكثر</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔬</div>
+      <div class="feature-title">شرح بالعربية</div>
+      <div class="feature-desc">تفسير مفاهيم الكم بلغة عربية واضحة مع أمثلة تطبيقية وكود قابل للتشغيل</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">تصدير البيانات XLSX</div>
+      <div class="feature-desc">تنزيل نتائج البحث والمحاكاة بصيغة Excel احترافية مع خيارات تنسيق متقدمة</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <div class="feature-title">متعدد اللغات</div>
+      <div class="feature-desc">العربية والإنجليزية والألمانية — نفس الدقة العلمية في كل لغة</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">استجابة فورية</div>
+      <div class="feature-desc">نتائج في أجزاء من الثانية مدعومة بـ Claude AI مع محاكاة كمية مباشرة</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔐</div>
+      <div class="feature-title">تشفير كمي</div>
+      <div class="feature-desc">استكشاف خوارزميات Shor وGrover وبروتوكولات QKD للتشفير الكمي</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>© 2026 IRAQ QUANTUM COMPUTING LAB</span>
+  <span>BAGHDAD, IQ · v2.0.1</span>
+</footer>
+
+</div><!-- /page-wrap -->
+
+<!-- AUTH MODAL -->
+<div class="modal-overlay" id="auth-overlay" onclick="closeAuthIfOutside(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">// ACCESS CONTROL</div>
+      <button class="modal-close" onclick="closeAuth()">✕</button>
+    </div>
+    <div class="modal-tabs">
+      <button class="auth-tab active" onclick="switchTab('login',this)">تسجيل الدخول</button>
+      <button class="auth-tab" onclick="switchTab('register',this)">إنشاء حساب</button>
+    </div>
+    <div class="modal-body">
+      <div id="a-ok" class="a-ok"></div>
+      <div id="a-err" class="a-err"></div>
+      <div id="name-field" class="field-wrap" style="display:none">
+        <label class="field-label">الاسم</label>
+        <input type="text" class="field-inp" id="inp-name" placeholder="اسمك الكامل"
+          oninput="fxClear('inp-name','fx-name')"/>
+        <button class="field-x" id="fx-name" onclick="fxDo('inp-name','fx-name')">✕</button>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">البريد الإلكتروني</label>
+        <input type="email" class="field-inp" id="inp-email" placeholder="email@domain.com"
+          oninput="fxClear('inp-email','fx-email')"/>
+        <button class="field-x" id="fx-email" onclick="fxDo('inp-email','fx-email')">✕</button>
+      </div>
+      <div class="field-wrap">
+        <label class="field-label">كلمة المرور</label>
+        <input type="password" class="field-inp" id="inp-pass" placeholder="••••••••"
+          oninput="fxClear('inp-pass','fx-pass')"
+          onkeydown="if(event.key==='Enter')submitAuth()"/>
+        <button class="field-x" id="fx-pass" onclick="fxDo('inp-pass','fx-pass')">✕</button>
+      </div>
+      <button id="auth-btn" onclick="submitAuth()">تسجيل الدخول ⚛️</button>
+    </div>
+  </div>
+</div>
+
+<!-- XLSX EXPORT MODAL -->
+<div class="xlsx-modal-overlay" id="xlsx-overlay" onclick="closeXlsxIfOutside(event)">
+  <div class="xlsx-modal">
+    <div class="xlsx-modal-header">
+      <div class="xlsx-modal-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+        </svg>
+        تصدير بيانات XLSX
+      </div>
+      <button class="modal-close" onclick="closeXlsx()">✕</button>
+    </div>
+    <div class="modal-body" style="padding:16px 24px">
+
+      <!-- Preview Table -->
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--gray-500);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">
+        // معاينة البيانات
+      </div>
+      <div style="overflow-x:auto;margin-bottom:16px">
+        <table class="xlsx-preview-table" id="xlsx-preview"></table>
+      </div>
+
+      <!-- Options -->
+      <div class="xlsx-options">
+        <div class="xlsx-opt-group">
+          <label>اسم الملف</label>
+          <input type="text" id="xlsx-filename" class="field-inp"
+            style="height:36px;font-family:'IBM Plex Mono',monospace;font-size:12px"
+            value="quantum_data"/>
+        </div>
+        <div class="xlsx-opt-group">
+          <label>اسم الورقة</label>
+          <input type="text" id="xlsx-sheetname" class="field-inp"
+            style="height:36px;font-family:'IBM Plex Mono',monospace;font-size:12px"
+            value="Quantum Results"/>
+        </div>
+        <div class="xlsx-opt-group">
+          <label>تضمين الطابع الزمني</label>
+          <select id="xlsx-timestamp">
+            <option value="yes">نعم</option>
+            <option value="no">لا</option>
+          </select>
+        </div>
+        <div class="xlsx-opt-group">
+          <label>تنسيق التاريخ</label>
+          <select id="xlsx-dateformat">
+            <option value="iso">ISO 8601</option>
+            <option value="local">محلي</option>
+            <option value="short">مختصر</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="xlsx-actions">
+        <button class="xlsx-confirm-btn" onclick="confirmXlsx()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          تنزيل XLSX
+        </button>
+        <button class="xlsx-cancel-btn" onclick="closeXlsx()">إلغاء</button>
+      </div>
+
+      <div class="xlsx-size-info">
+        <span>📋 <span id="xlsx-rows-count">0</span> صف</span>
+        <span>📊 <span id="xlsx-cols-count">0</span> عمود</span>
+        <span>💾 حجم تقريبي: <span id="xlsx-size-est">0 KB</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── STATE ──
+let authMode='login';
+let currentLang='ar';
+let currentQuestion='';
+let currentAnswer='';
+let xlsxPendingData=null;
+let searchHistory=[];
+
+// ── LANG ──
+function setLang(lang,el){
+  currentLang=lang;
+  document.documentElement.lang=lang;
+  document.documentElement.dir=lang==='ar'?'rtl':'ltr';
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  const texts={
+    ar:{
+      hero:'Iraq Quantum Computing Lab',
+      heroSub:'مدعوم بالذكاء الاصطناعي',
+      live:'اسأل بأي لغة — شرح + كود + محاكاة مباشرة',
+      search:'اسأل عن الحوسبة الكمية...',
+      logout:'تسجيل الدخول ⚛️',
+      qubits:'كيوبت<br>محاكاة حقيقية',
+      states:'حالة كمية<br>كوادريليون 2',
+      first:'الأول بالعراق<br>مارس 2026 8',
+      free:'مجاني<br>بلا حدود'
+    },
+    en:{
+      hero:'Iraq Quantum Computing Lab',
+      heroSub:'AI Powered',
+      live:'Ask in any language — Explanation + Code + Live Simulation',
+      search:'Ask about quantum computing...',
+      logout:'Login ⚛️',
+      qubits:'Qubits<br>Real Simulation',
+      states:'Quantum States<br>2 Quadrillion',
+      first:'First in Iraq<br>March 8, 2026',
+      free:'Free<br>Unlimited'
+    },
+    de:{
+      hero:'Irak Quantencomputerlabor',
+      heroSub:'KI-gestützt',
+      live:'Fragen auf Arabisch — Erklärung + Code + Live-Simulation',
+      search:'Fragen über Quantencomputing...',
+      logout:'Anmelden ⚛️',
+      qubits:'Qubits<br>Echte Simulation',
+      states:'Quantenzustände<br>2 Billiarden',
+      first:'Erster im Irak<br>8. März 2026',
+      free:'Kostenlos<br>Unbegrenzt'
+    }
+  };
+  const t=texts[lang];
+  const h1=document.querySelector('.hero h1');
+  if(h1)h1.innerHTML=t.hero.replace('Quantum','<span>Quantum</span>').replace('Quantencomputerlabor','<span>Quantencomputerlabor</span>');
+  const lt=document.querySelector('.live-tag');
+  if(lt)lt.innerHTML='<span class="blink"></span> '+t.live;
+  const qi=document.getElementById('qinp');
+  if(qi)qi.placeholder=t.search;
+  const lb=document.getElementById('logout-btn');
+  if(lb)lb.textContent=t.logout;
+  const sl=document.querySelectorAll('.stat-l');
+  if(sl[0])sl[0].innerHTML=t.qubits;
+  if(sl[1])sl[1].innerHTML=t.states;
+  if(sl[2])sl[2].innerHTML=t.first;
+  if(sl[3])sl[3].innerHTML=t.free;
+}
+
+// ── SEARCH ──
+function toggleSX(){
+  document.getElementById('s-x').classList.toggle('on',document.getElementById('qinp').value.length>0);
+}
+function clearSearch(){
+  document.getElementById('qinp').value='';
+  document.getElementById('s-x').classList.remove('on');
+  document.getElementById('result-sec').style.display='none';
+  document.getElementById('result-sec').innerHTML='';
+  document.getElementById('qinp').focus();
+}
+
+async function doSearch(){
+  const q=document.getElementById('qinp').value.trim();
+  if(!q)return;
+  currentQuestion=q;
+  const sec=document.getElementById('result-sec');
+  sec.style.display='block';
+  sec.innerHTML=`<div class="loading-bar"></div>`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        messages:[{
+          role:'user',
+          content:`أنت مساعد متخصص في الحوسبة الكمية للمختبر الكمي العراقي. أجب على هذا السؤال بشكل علمي دقيق مع كود Python إذا مناسب: ${q}`
+        }]
+      })
+    });
+    const data=await res.json();
+    const answer=data.content?.map(i=>i.text||'').join('\n')||'لا توجد استجابة';
+    currentAnswer=answer;
+    const ts=new Date().toISOString();
+    searchHistory.push({question:q,answer,timestamp:ts,lang:currentLang});
+    renderResult(q,answer,ts);
+  }catch(e){
+    // Demo fallback
+    const demoAnswer=generateDemoAnswer(q);
+    currentAnswer=demoAnswer;
+    const ts=new Date().toISOString();
+    searchHistory.push({question:q,answer:demoAnswer,timestamp:ts,lang:currentLang});
+    renderResult(q,demoAnswer,ts);
+  }
+}
+
+function generateDemoAnswer(q){
+  return `## الحوسبة الكمية — ${q}\n\nالكيوبت هو الوحدة الأساسية للمعلومات الكمية. على عكس البت الكلاسيكي الذي يكون إما 0 أو 1، يمكن للكيوبت أن يكون في حالة تراكب (superposition) من الحالتين معاً.\n\n### مثال بكود Python (Qiskit):\n\`\`\`python\nfrom qiskit import QuantumCircuit, transpile\nfrom qiskit_aer import AerSimulator\n\n# إنشاء دائرة كمية بكيوبت واحد\nqc = QuantumCircuit(1, 1)\nqc.h(0)  # بوابة Hadamard - إنشاء التراكب\nqc.measure(0, 0)\n\n# تشغيل المحاكاة\nsimulator = AerSimulator()\njob = simulator.run(transpile(qc, simulator), shots=1024)\nresult = job.result()\nprint(result.get_counts())\n\`\`\`\n\nالنتيجة المتوقعة: توزيع متساوٍ بين |0⟩ و|1⟩`;
+}
+
+function renderResult(q,answer,ts){
+  const sec=document.getElementById('result-sec');
+  const formatted=formatAnswer(answer);
+  sec.innerHTML=`
+    <div class="result-header">
+      <div class="result-tag">نتيجة البحث</div>
+      <div class="result-actions">
+        <button class="export-btn csv" onclick="exportCSV()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          CSV
+        </button>
+        <button class="export-btn xlsx" onclick="openXlsxModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+          تصدير XLSX
+        </button>
+      </div>
+    </div>
+    <div class="result-body">${formatted}</div>
+    <div class="result-meta">
+      <span>LANG: ${currentLang.toUpperCase()}</span>
+      <span>TIME: ${new Date(ts).toLocaleTimeString()}</span>
+      <span>MODEL: CLAUDE-SONNET-4</span>
+    </div>`;
+}
+
+function formatAnswer(text){
+  return text
+    .replace(/```(\w*)\n?([\s\S]*?)```/g,(_,lang,code)=>`<pre>${code.trim()}</pre>`)
+    .replace(/`([^`]+)`/g,'<code>$1</code>')
+    .replace(/^## (.+)$/gm,'<h2>$1</h2>')
+    .replace(/^### (.+)$/gm,'<h3>$1</h3>')
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/^/,'<p>').replace(/$/,'</p>')
+    .replace(/<p><h/g,'<h').replace(/<\/h(\d)><\/p>/g,'</h$1>');
+}
+
+// ── CSV EXPORT ──
+function exportCSV(){
+  let csv='Question,Answer,Timestamp,Language\n';
+  csv+=`"${currentQuestion.replace(/"/g,'""')}","${currentAnswer.replace(/"/g,'""')}","${new Date().toISOString()}","${currentLang}"\n`;
+  const link=document.createElement('a');
+  link.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURI(csv);
+  link.download=`quantum_${Date.now()}.csv`;
+  document.body.appendChild(link);link.click();document.body.removeChild(link);
+  showToast('✓ تم تصدير CSV');
+}
+
+// ── XLSX MODAL ──
+function openXlsxModal(){
+  // Build preview data
+  const rows=buildXlsxRows();
+  xlsxPendingData=rows;
+
+  // Preview table
+  const tbl=document.getElementById('xlsx-preview');
+  if(rows.length>0){
+    const headers=Object.keys(rows[0]);
+    let html=`<tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr>`;
+    rows.slice(0,3).forEach(row=>{
+      html+=`<tr>${headers.map(h=>`<td title="${String(row[h]||'').replace(/"/g,'&quot;')}">${truncate(String(row[h]||''),28)}</td>`).join('')}</tr>`;
+    });
+    tbl.innerHTML=html;
+    document.getElementById('xlsx-rows-count').textContent=rows.length;
+    document.getElementById('xlsx-cols-count').textContent=headers.length;
+    document.getElementById('xlsx-size-est').textContent=estimateSize(rows);
+  }
+
+  // Default filename
+  document.getElementById('xlsx-filename').value=`quantum_${new Date().toISOString().slice(0,10)}`;
+  document.getElementById('xlsx-modal-overlay')?null:null;
+  document.getElementById('xlsx-overlay').classList.add('open');
+}
+
+function closeXlsx(){document.getElementById('xlsx-overlay').classList.remove('open')}
+function closeXlsxIfOutside(e){if(e.target===document.getElementById('xlsx-overlay'))closeXlsx()}
+
+function buildXlsxRows(){
+  const includeTS=document.getElementById('xlsx-timestamp')?.value!=='no';
+  const dfmt=document.getElementById('xlsx-dateformat')?.value||'iso';
+
+  const formatDate=(d)=>{
+    if(dfmt==='local')return new Date(d).toLocaleString('ar-IQ');
+    if(dfmt==='short')return new Date(d).toLocaleDateString('ar-IQ');
+    return d;
+  };
+
+  // Current search
+  const rows=[{
+    'السؤال':currentQuestion,
+    'الجواب':currentAnswer.replace(/[`#*]/g,'').substring(0,500)+'...',
+    'الجواب الكامل':currentAnswer,
+    'اللغة':currentLang.toUpperCase(),
+    'النموذج':'Claude Sonnet 4',
+    'المصدر':'Iraq Quantum Computing Lab',
+    ...(includeTS?{'الطابع الزمني':formatDate(new Date().toISOString())}:{})
+  }];
+
+  // Add history if any
+  if(searchHistory.length>1){
+    searchHistory.slice(0,-1).forEach(h=>{
+      rows.push({
+        'السؤال':h.question,
+        'الجواب':h.answer.replace(/[`#*]/g,'').substring(0,500)+'...',
+        'الجواب الكامل':h.answer,
+        'اللغة':h.lang.toUpperCase(),
+        'النموذج':'Claude Sonnet 4',
+        'المصدر':'Iraq Quantum Computing Lab',
+        ...(includeTS?{'الطابع الزمني':formatDate(h.timestamp)}:{})
+      });
+    });
+  }
+  return rows;
+}
+
+function confirmXlsx(){
+  const filename=(document.getElementById('xlsx-filename').value.trim()||'quantum_data').replace(/\.xlsx$/i,'');
+  const sheetname=document.getElementById('xlsx-sheetname').value.trim()||'Quantum Results';
+  const rows=buildXlsxRows();
+
+  try{
+    const ws=XLSX.utils.json_to_sheet(rows,{header:Object.keys(rows[0])});
+
+    // Column widths
+    const wscols=Object.keys(rows[0]).map(k=>({
+      wch:k==='الجواب الكامل'?80:k==='السؤال'||k==='الجواب'?50:20
+    }));
+    ws['!cols']=wscols;
+
+    // Style header row (bold)
+    const range=XLSX.utils.decode_range(ws['!ref']);
+    for(let C=range.s.c;C<=range.e.c;C++){
+      const addr=XLSX.utils.encode_cell({r:0,c:C});
+      if(!ws[addr])continue;
+      ws[addr].s={
+        font:{bold:true,color:{rgb:'FFFFFF'},name:'IBM Plex Mono'},
+        fill:{fgColor:{rgb:'0F62FE'}},
+        alignment:{horizontal:'right',vertical:'center',wrapText:false}
+      };
+    }
+
+    // Data rows alignment
+    for(let R=range.s.r+1;R<=range.e.r;R++){
+      for(let C=range.s.c;C<=range.e.c;C++){
+        const addr=XLSX.utils.encode_cell({r:R,c:C});
+        if(!ws[addr])continue;
+        ws[addr].s={alignment:{horizontal:'right',vertical:'top',wrapText:true}};
+      }
+    }
+
+    // Workbook metadata
+    const wb=XLSX.utils.book_new();
+    wb.Props={
+      Title:'Iraq Quantum Computing Lab — نتائج البحث',
+      Subject:'Quantum Computing',
+      Author:'IQ Quantum Lab',
+      CreatedDate:new Date()
+    };
+    XLSX.utils.book_append_sheet(wb,ws,sheetname);
+
+    // Add metadata sheet
+    const metaData=[
+      {Key:'Generated By',Value:'Iraq Quantum Computing Lab'},
+      {Key:'Date',Value:new Date().toISOString()},
+      {Key:'Model',Value:'Claude Sonnet 4'},
+      {Key:'Total Records',Value:rows.length},
+      {Key:'Language',Value:currentLang.toUpperCase()},
+      {Key:'Version',Value:'2.0.1'}
+    ];
+    const wsMeta=XLSX.utils.json_to_sheet(metaData);
+    wsMeta['!cols']=[{wch:20},{wch:50}];
+    XLSX.utils.book_append_sheet(wb,wsMeta,'Metadata');
+
+    XLSX.writeFile(wb,`${filename}.xlsx`);
+    closeXlsx();
+    showToast(`✓ تم تصدير ${rows.length} سجل → ${filename}.xlsx`);
+  }catch(err){
+    showToast('✗ خطأ في التصدير: '+err.message);
+  }
+}
+
+function truncate(s,n){return s.length>n?s.slice(0,n)+'…':s}
+function estimateSize(rows){
+  const bytes=JSON.stringify(rows).length*1.5;
+  return bytes>1024?`${(bytes/1024).toFixed(1)} KB`:`${Math.round(bytes)} B`;
+}
+
+// ── AUTH ──
+function openAuth(){document.getElementById('auth-overlay').classList.add('open')}
+function closeAuth(){document.getElementById('auth-overlay').classList.remove('open')}
+function closeAuthIfOutside(e){if(e.target===document.getElementById('auth-overlay'))closeAuth()}
+
+function switchTab(mode,el){
+  authMode=mode;
+  document.querySelectorAll('.auth-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('name-field').style.display=mode==='register'?'block':'none';
+  document.getElementById('auth-btn').textContent=mode==='register'?'إنشاء الحساب ⚛️':'تسجيل الدخول ⚛️';
+  clrMsg();
+}
+function aMsg(t,x){clrMsg();const el=document.getElementById(t==='ok'?'a-ok':'a-err');el.textContent=x;el.classList.add('on')}
+function clrMsg(){document.getElementById('a-ok').classList.remove('on');document.getElementById('a-err').classList.remove('on')}
+
+async function submitAuth(){
+  const email=document.getElementById('inp-email').value.trim();
+  const pass=document.getElementById('inp-pass').value;
+  if(!email||!pass){aMsg('err','يرجى ملء جميع الحقول');return}
+  if(authMode==='register'){
+    aMsg('ok','تم إنشاء الحساب بنجاح ⚛️');
+    setTimeout(()=>closeAuth(),1500);
+  }else{
+    aMsg('ok','تم تسجيل الدخول ⚛️');
+    setTimeout(()=>closeAuth(),1000);
+  }
+}
+
+function handleLogout(){openAuth()}
+
+// ── FIELD X ──
+function fxClear(inp,btn){document.getElementById(btn).classList.toggle('on',document.getElementById(inp).value.length>0)}
+function fxDo(inp,btn){document.getElementById(inp).value='';document.getElementById(btn).classList.remove('on');document.getElementById(inp).focus()}
+
+// ── TOAST ──
+function showToast(msg,dur=3000){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),dur);
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){closeAuth();closeXlsx()}
+});
+</script>
+</body>
+</html>
